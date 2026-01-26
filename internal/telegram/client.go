@@ -38,6 +38,7 @@ func NewClient(cfg *config.Config, handler MessageHandler) *Client {
 func (c *Client) Start(ctx context.Context) error {
 	dispatcher := tg.NewUpdateDispatcher()
 	dispatcher.OnNewMessage(c.onNewMessage)
+	dispatcher.OnNewChannelMessage(c.onNewChannelMessage)
 
 	opts := telegram.Options{
 		SessionStorage: &telegram.FileSessionStorage{Path: c.cfg.Telegram.SessionFile},
@@ -90,28 +91,59 @@ func (c *Client) onNewMessage(ctx context.Context, e tg.Entities, update *tg.Upd
 		return nil
 	}
 
+	return c.handleMessage(msg)
+}
+
+func (c *Client) onNewChannelMessage(ctx context.Context, e tg.Entities, update *tg.UpdateNewChannelMessage) error {
+	msg, ok := update.Message.(*tg.Message)
+	if !ok || msg.Out {
+		return nil
+	}
+
+	return c.handleMessage(msg)
+}
+
+func (c *Client) handleMessage(msg *tg.Message) error {
 	var groupID int64
 	if peer, ok := msg.PeerID.(*tg.PeerChannel); ok {
 		groupID = peer.ChannelID
 	} else if peer, ok := msg.PeerID.(*tg.PeerChat); ok {
 		groupID = peer.ChatID
 	} else {
-		// Only care about groups and channels for now
 		return nil
 	}
 
 	if c.cfg.Monitor.Debug {
-		log.Printf("[DEBUG] Received msg from group %d: %s", groupID, msg.Message)
+		log.Printf("[DEBUG] Received msg from group %d", groupID)
 	}
 
-	if msg.Message != "" {
-		c.handler(model.MessageData{
-			GroupID:   groupID,
-			SenderID:  0, // TODO: Resolve FromID
-			Text:      msg.Message,
-			Timestamp: time.Unix(int64(msg.Date), 0),
-		})
+	if len(c.cfg.Telegram.TargetGroups) > 0 {
+		found := false
+		for _, targetID := range c.cfg.Telegram.TargetGroups {
+			if targetID == groupID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil
+		}
 	}
+
+	if msg.Message == "" {
+		return nil
+	}
+
+	senderID := int64(0)
+	if fromUser, ok := msg.FromID.(*tg.PeerUser); ok {
+		senderID = fromUser.UserID
+	}
+	c.handler(model.MessageData{
+		GroupID:   groupID,
+		SenderID:  senderID,
+		Text:      msg.Message,
+		Timestamp: time.Unix(int64(msg.Date), 0),
+	})
 	return nil
 }
 

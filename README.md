@@ -8,15 +8,15 @@
 ## 🇬🇧 English
 
 ### Introduction
-**TgRadar-Go** is a real-time Telegram group sentiment analysis and summary tool powered by AI (OpenAI/DeepSeek). It monitors specified Telegram groups, captures chat messages, and periodically generates concise briefings, helping users quickly grasp community hotspots, sentiment trends, and high-value information.
+**TgRadar-Go** is an AI-powered Telegram group monitoring and briefing tool (OpenAI/DeepSeek). It captures messages from selected groups and periodically generates a consolidated market brief with trading sentiment, hot topics, and key signals.
 
 ### Features
-- **Real-time Monitoring**: Connects to Telegram using MTProto to capture group messages in real-time.
-- **AI Analysis**: Integrates LLM (OpenAI/DeepSeek) to automatically summarize chat content.
-- **Sentiment Analysis**: Identifies community sentiment (Positive/Panic/Wait-and-see, etc.).
-- **Key Info Extraction**: Automatically extracts project names, URLs, error messages, etc.
-- **Proxy Support**: Supports SOCKS5 proxy for use in restricted network environments.
-- **Modular Design**: Clean architecture with low coupling, easy to extend and maintain.
+- **Multi-group monitoring**: Track multiple groups or all groups.
+- **Periodic AI briefing**: Generates a single consolidated summary per window.
+- **Trading-focused insights**: Highlights sentiment, hot projects, and key events.
+- **Telegram Bot delivery**: Pushes summaries to a Bot chat.
+- **Proxy support**: SOCKS5 proxy for restricted networks.
+- **Clean architecture**: Modular design, easy to extend.
 
 ### Configuration (`config.yml`)
 
@@ -29,7 +29,10 @@ telegram:
   session_file: "session.json" # Session storage file path
   phone: "+1234567890"         # Your phone number
   password: "your_2fa_password"# 2FA password (if enabled)
-  proxy: "127.0.0.1:10808"     # SOCKS5 proxy address (optional, leave empty if not needed)
+  proxy: "127.0.0.1:10808"     # SOCKS5 proxy address (optional)
+  target_groups: [1234567890]  # Target group IDs (empty = all)
+  bot_token: "123456:ABCDEF"   # Bot token (optional)
+  bot_chat_id: -1001234567890  # Bot target chat_id (optional)
 
 monitor:
   window_seconds: 60           # Analysis interval (seconds)
@@ -64,6 +67,8 @@ ai:
 
 3.  **Login**:
     *   On the first run, the terminal will prompt you to enter the Telegram verification code sent to your app.
+4.  **Bot delivery (optional)**:
+    *   Set `bot_token` and `bot_chat_id` to receive summaries in Telegram.
 
 ### License
 This project is licensed under the [MIT License](LICENSE).
@@ -74,15 +79,15 @@ This project is licensed under the [MIT License](LICENSE).
 ## 🇨🇳 中文
 
 ### 项目简介
-**TgRadar-Go** 是一个基于 AI (OpenAI/DeepSeek) 的 Telegram 群组实时舆情分析与摘要工具。它能实时监控指定的 Telegram 群组，抓取聊天记录，并定期生成简报，帮助用户快速了解社群热点、情绪倾向和高价值信息。
+**TgRadar-Go** 是一个基于 AI (OpenAI/DeepSeek) 的 Telegram 群组监控与简报工具。它抓取指定群聊消息，按时间窗口生成一份汇总简报，聚焦交易情绪、热点项目与关键事件。
 
 ### 基础功能
-- **实时监控**：基于 MTProto 协议连接 Telegram，实时捕获群组消息。
-- **AI 智能分析**：集成 LLM (OpenAI/DeepSeek) 自动总结聊天内容。
-- **情绪判断**：识别社群整体情绪（积极/恐慌/观望等）。
-- **关键信息提取**：自动提取项目名、网址、报错信息等高价值内容。
-- **代理支持**：内置 SOCKS5 代理支持，适应国内网络环境。
-- **模块化设计**：代码结构清晰，低耦合，易于扩展和维护。
+- **多群监控**：可配置多个群组，或监控所有群。
+- **周期汇总**：每个窗口输出一份汇总简报。
+- **交易视角**：突出情绪、热点项目与关键事件。
+- **Bot 推送**：通过 Telegram Bot 自动发送汇总。
+- **代理支持**：内置 SOCKS5 代理。
+- **模块化设计**：结构清晰，易扩展。
 
 ### 配置文件 (`config.yml`)
 
@@ -95,7 +100,10 @@ telegram:
   session_file: "session.json" # 会话保存文件路径
   phone: "+1234567890"         # 你的手机号
   password: "your_2fa_password"# 两步验证密码 (如果开启)
-  proxy: "127.0.0.1:10808"     # SOCKS5 代理地址 (可选，不需要则留空)
+  proxy: "127.0.0.1:10808"     # SOCKS5 代理地址 (可选)
+  target_groups: [1234567890]  # 目标群组ID (留空则监控所有)
+  bot_token: "123456:ABCDEF"   # Bot token (可选)
+  bot_chat_id: -1001234567890  # Bot 接收 chat_id (可选)
 
 monitor:
   window_seconds: 60           # 分析周期（秒）
@@ -130,6 +138,8 @@ ai:
 
 3.  **首次登录**：
     *   程序首次运行会提示输入 Telegram 验证码（发送到你的 TG 客户端）。
+4.  **Bot 推送（可选）**：
+    *   配置 `bot_token` 与 `bot_chat_id`，即可在 Telegram 中接收汇总。
 
 ### 开源协议
 本项目采用 [MIT License](LICENSE) 开源协议。

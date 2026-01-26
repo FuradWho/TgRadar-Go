@@ -14,6 +14,9 @@ type Config struct {
 		Phone       string `mapstructure:"phone"`
 		Password    string `mapstructure:"password"`
 		Proxy       string `mapstructure:"proxy"`
+		TargetGroups []int64 `mapstructure:"target_groups"`
+		BotToken     string  `mapstructure:"bot_token"`
+		BotChatID    int64   `mapstructure:"bot_chat_id"`
 	} `mapstructure:"telegram"`
 
 	Monitor struct {

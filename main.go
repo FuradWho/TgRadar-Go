@@ -10,6 +10,7 @@ import (
 	"github.com/FuradWho/TgRadar-Go/internal/ai"
 	"github.com/FuradWho/TgRadar-Go/internal/analyzer"
 	"github.com/FuradWho/TgRadar-Go/internal/config"
+	"github.com/FuradWho/TgRadar-Go/internal/notifier"
 	"github.com/FuradWho/TgRadar-Go/internal/telegram"
 )
 
@@ -23,8 +24,14 @@ func main() {
 	// 2. Initialize AI client
 	aiClient := ai.NewClient(cfg)
 
+	// 2.5 Initialize notifier (optional)
+	var sender notifier.Sender
+	if cfg.Telegram.BotToken != "" && cfg.Telegram.BotChatID != 0 {
+		sender = notifier.NewTelegramBot(cfg.Telegram.BotToken, cfg.Telegram.BotChatID)
+	}
+
 	// 3. Initialize Analyzer
-	anal := analyzer.NewManager(cfg, aiClient)
+	anal := analyzer.NewManager(cfg, aiClient, sender)
 
 	// 4. Initialize Telegram client
 	// Bind message handler to analyzer's AddMessage
